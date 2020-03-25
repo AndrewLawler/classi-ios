@@ -14,7 +14,6 @@
 		641E0DED242848830029695E /* Auth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641E0DEC242848830029695E /* Auth.swift */; };
 		641E0DEF24284BA10029695E /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641E0DEE24284BA10029695E /* User.swift */; };
 		6424BFBE24291B2300CF12BE /* ListCarVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6424BFBD24291B2300CF12BE /* ListCarVC.swift */; };
-		6424BFC124291EB700CF12BE /* OnboardingVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6424BFC024291EB700CF12BE /* OnboardingVC.swift */; };
 		6424BFC324294B9300CF12BE /* Avatar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6424BFC224294B9300CF12BE /* Avatar.swift */; };
 		6424BFC524294CB500CF12BE /* ImageViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6424BFC424294CB500CF12BE /* ImageViewExtension.swift */; };
 		642A00DE2415C2C100FD19B5 /* CarInfoVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642A00DD2415C2C100FD19B5 /* CarInfoVC.swift */; };
@@ -54,7 +53,6 @@
 		641E0DEC242848830029695E /* Auth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Auth.swift; sourceTree = "<group>"; };
 		641E0DEE24284BA10029695E /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		6424BFBD24291B2300CF12BE /* ListCarVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCarVC.swift; sourceTree = "<group>"; };
-		6424BFC024291EB700CF12BE /* OnboardingVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingVC.swift; sourceTree = "<group>"; };
 		6424BFC224294B9300CF12BE /* Avatar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Avatar.swift; sourceTree = "<group>"; };
 		6424BFC424294CB500CF12BE /* ImageViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewExtension.swift; sourceTree = "<group>"; };
 		642A00DD2415C2C100FD19B5 /* CarInfoVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarInfoVC.swift; sourceTree = "<group>"; };
@@ -137,7 +135,6 @@
 		6424BFBF24291EA500CF12BE /* Onboarding Slides  */ = {
 			isa = PBXGroup;
 			children = (
-				6424BFC024291EB700CF12BE /* OnboardingVC.swift */,
 			);
 			path = "Onboarding Slides ";
 			sourceTree = "<group>";
@@ -408,7 +405,6 @@
 				6424BFC324294B9300CF12BE /* Avatar.swift in Sources */,
 				64FBBD38241485C400787312 /* WelcomeVC.swift in Sources */,
 				64D587CD242A23F80022B64B /* FavouritedImage.swift in Sources */,
-				6424BFC124291EB700CF12BE /* OnboardingVC.swift in Sources */,
 				64FBBD21241484A100787312 /* AppDelegate.swift in Sources */,
 				64EF0A6624167C2800E2F1C6 /* EditProfileVC.swift in Sources */,
 				644C1F4F24285C4D00D99989 /* ClassiTitleLabel.swift in Sources */,

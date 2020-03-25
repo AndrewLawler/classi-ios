@@ -1,5 +1,5 @@
 <div style="text-align: center;">
-    <h1> classi. </h1>
+    <h1> classi -iOS </h1>
     <h4><i> Classic Car Marketplace </i></h4>
     <img src="Artwork1.png"/>
     <img src="Artwork2.png"/>
