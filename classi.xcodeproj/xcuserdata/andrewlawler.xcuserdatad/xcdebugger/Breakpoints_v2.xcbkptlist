@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "322DA75D-7FD9-48F4-B8EE-A17D7F706624"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "00559889-7060-4E15-A0E0-3F043882B5CB"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "classi/ClassiTextField.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "14"
+            endingLineNumber = "14"
+            landmarkName = "init(frame:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "00559889-7060-4E15-A0E0-3F043882B5CB - a7aada11e3d7987f"
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "classi.ClassiTextField.__allocating_init(frame: __C.CGRect) -&gt; classi.ClassiTextField"
+                  moduleName = "classi"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrewlawler/Documents/Coding/University/Year2/GroupProject/classi/classi/ClassiTextField.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0"
+                  offsetFromSymbolStart = "10">
+               </Location>
+               <Location
+                  uuid = "00559889-7060-4E15-A0E0-3F043882B5CB - 8f5a0102ece45ac7"
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "classi.ClassiTextField.init(frame: __C.CGRect) -&gt; classi.ClassiTextField"
+                  moduleName = "classi"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrewlawler/Documents/Coding/University/Year2/GroupProject/classi/classi/ClassiTextField.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "15"
+                  endingLineNumber = "15"
+                  offsetFromSymbolStart = "87">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>
