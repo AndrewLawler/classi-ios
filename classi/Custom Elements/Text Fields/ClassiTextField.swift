@@ -21,9 +21,8 @@ class ClassiTextField: UITextField {
         fatalError("init(coder:) has not been implemented")
     }
     
-    init(placeholder: String, backgroundColour: UIColor, outline: UIColor ) {
-        super.init(frame: .zero)
-        configure()
+    convenience init(placeholder: String, backgroundColour: UIColor, outline: UIColor ) {
+        self.init(frame: .zero)
         self.placeholder = placeholder
         self.backgroundColor = backgroundColor
         self.layer.borderColor = outline.cgColor

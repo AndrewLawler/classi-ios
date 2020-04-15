@@ -36,7 +36,7 @@ class ClassiCarProfileCell: UITableViewCell {
     }
     
     func update(image: String, name: String, carPrice: String, carYear: String) {
-        carImage.image = UIImage(named: "Car")
+        carImage.load(url: URL(string: image)!)
         carName.text = name
         priceLabel.text = carPrice
         yearLabel.text = carYear

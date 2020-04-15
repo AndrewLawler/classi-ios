@@ -25,9 +25,10 @@ class EditProfileVC: UIViewController {
     let saveButton = ClassiButton(backgroundColor: .classiBlue, title: "Save Changes", textColor: .white, borderColour: .classiBlue)
     let imageUploadButton = ClassiButton(backgroundColor: .white, title: "Upload Image", textColor: .classiBlue, borderColour: .classiBlue)
     
+    var image: UIImage?
     var userID: Auth?
     
-    lazy var contentViewSize = CGSize(width: self.view.frame.width, height: self.view.frame.height + 100)
+    lazy var contentViewSize = CGSize(width: self.view.frame.width, height: 1000)
     
     lazy var containerView: UIView = {
         let view = UIView()
@@ -64,8 +65,14 @@ class EditProfileVC: UIViewController {
     }
     
     @objc func saveChanges() {
-        // saveChanges
-        // make post request to userID
+        // network call to save changes
+        NetworkManager.shared.postUserAvatar(token: userID!.user.id, image: image!)
+    }
+    
+    @objc fileprivate func handleSelectPhoto() {
+        let imagePickerController = UIImagePickerController()
+        imagePickerController.delegate = self
+        present(imagePickerController, animated: true)
     }
     
     func configure() {
@@ -119,6 +126,8 @@ class EditProfileVC: UIViewController {
         emailLabel.textColor = .classiBlue
         
         saveButton.addTarget(self, action: #selector(saveChanges), for: .touchUpInside)
+        
+        imageUploadButton.addTarget(self, action: #selector(handleSelectPhoto), for: .touchUpInside)
         
         view.addSubview(scrollView)
         
@@ -214,11 +223,72 @@ class EditProfileVC: UIViewController {
             
         ])
             
-        
-        
     }
     
+    func postImage(image: UIImage) {
+
+        let filename = "avatar.png"
+
+        // generate boundary string using a unique per-app string
+        let boundary = UUID().uuidString
+
+        let fieldName = "avatar"
+        let fieldValue = "fileupload"
+
+        let config = URLSessionConfiguration.default
+        let session = URLSession(configuration: config)
+
+        var urlRequest = URLRequest(url: URL(string: "https://classi-server.herokuapp.com/api/images/avatars")!)
+        urlRequest.httpMethod = "POST"
+
+        urlRequest.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        urlRequest.setValue(userID!.user.id, forHTTPHeaderField: "X-Auth-Token")
+
+        var data = Data()
+        
+        // Add the image data to the raw http request data
+        data.append("\r\n--\(boundary)\r\n".data(using: .utf8)!)
+        data.append("Content-Disposition: form-data; name=\"fileToUpload\"; filename=\"avi.png\"\r\n".data(using: .utf8)!)
+        data.append("Content-Type: image/png\r\n\r\n".data(using: .utf8)!)
+        data.append(image.pngData()!)
+
+        // End the raw http request data, note that there is 2 extra dash ("-") at the end, this is to indicate the end of the data
+        // According to the HTTP 1.1 specification https://tools.ietf.org/html/rfc7230
+        data.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+
+        // Send a POST request to the URL, with the data we created earlier
+        session.uploadTask(with: urlRequest, from: data, completionHandler: { responseData, response, error in
+            
+            if(error != nil){
+                print("\(error!.localizedDescription)")
+            }
+            
+            guard let responseData = responseData else {
+                print("no response data")
+                return
+            }
+            
+            if let responseString = String(data: responseData, encoding: .utf8) {
+                print("uploaded to: \(responseString)")
+            }
+        }).resume()
+
+    }
+
     
-
-
 }
+
+extension EditProfileVC: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        image = info[.originalImage] as? UIImage
+        postImage(image: image!)
+        dismiss(animated: true)
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        dismiss(animated: true)
+    }
+    
+}
+

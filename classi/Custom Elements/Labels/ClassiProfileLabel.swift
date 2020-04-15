@@ -15,9 +15,8 @@ class ClassiProfileLabel: UILabel {
         configure()
     }
     
-    init(textInput: String, numOfLines: Int) {
-        super.init(frame: .zero)
-        configure()
+    convenience init(textInput: String, numOfLines: Int) {
+        self.init(frame: .zero)
         numberOfLines = numOfLines
         text = textInput
     }

@@ -11,12 +11,12 @@ import UIKit
 class CarInfoVC: UIViewController {
     
     let personImage = UIImageView()
-    let flagImage = UIImageView()
+    let viewsImage = UIImageView()
     let currencyImage = UIImageView()
     let yearImage = UIImageView()
     
     let personLabel = UILabel()
-    let flagLabel = UILabel()
+    let viewsLabel = UILabel()
     let currencyLabel = UILabel()
     let yearLabel = UILabel()
     
@@ -28,10 +28,11 @@ class CarInfoVC: UIViewController {
         configure()
     }
     
-    init(owner: String, price: String, year: String) {
+    init(owner: String, price: String, year: String, views: Int) {
         super.init(nibName: nil, bundle: nil)
         self.personLabel.text = owner
         self.currencyLabel.text = price
+        self.viewsLabel.text = "\(views)"
         self.yearLabel.text = year
         configure()
     }
@@ -53,9 +54,9 @@ class CarInfoVC: UIViewController {
         personImage.translatesAutoresizingMaskIntoConstraints = false
         personImage.tintColor = .white
         
-        flagImage.image = UIImage(systemName: "flag.circle")
-        flagImage.translatesAutoresizingMaskIntoConstraints = false
-        flagImage.tintColor = .white
+        viewsImage.image = UIImage(systemName: "eye")
+        viewsImage.translatesAutoresizingMaskIntoConstraints = false
+        viewsImage.tintColor = .white
         
         currencyImage.image = UIImage(systemName: "sterlingsign.circle")
         currencyImage.translatesAutoresizingMaskIntoConstraints = false
@@ -70,11 +71,10 @@ class CarInfoVC: UIViewController {
         personLabel.font = UIFont(name: "HelveticaNeue", size: 15)
         personLabel.textColor = .white
         
-        flagLabel.text = "U.S.A"
-        flagLabel.adjustsFontSizeToFitWidth = true
-        flagLabel.translatesAutoresizingMaskIntoConstraints = false
-        flagLabel.font = UIFont(name: "HelveticaNeue", size: 15)
-        flagLabel.textColor = .white
+        viewsLabel.adjustsFontSizeToFitWidth = true
+        viewsLabel.translatesAutoresizingMaskIntoConstraints = false
+        viewsLabel.font = UIFont(name: "HelveticaNeue", size: 15)
+        viewsLabel.textColor = .white
         
         currencyLabel.adjustsFontSizeToFitWidth = true
         currencyLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -90,8 +90,8 @@ class CarInfoVC: UIViewController {
     func configureStackView() {
         leftView.addSubview(personImage)
         leftView.addSubview(personLabel)
-        leftView.addSubview(flagLabel)
-        leftView.addSubview(flagImage)
+        leftView.addSubview(viewsLabel)
+        leftView.addSubview(viewsImage)
         
         rightView.addSubview(currencyImage)
         rightView.addSubview(currencyLabel)
@@ -133,15 +133,15 @@ class CarInfoVC: UIViewController {
             personLabel.widthAnchor.constraint(equalToConstant: 100),
             personLabel.heightAnchor.constraint(equalToConstant: 20),
             
-            flagImage.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -outerPadding),
-            flagImage.leadingAnchor.constraint(equalTo: leftView.leadingAnchor, constant: outerPadding),
-            flagImage.heightAnchor.constraint(equalToConstant: 50),
-            flagImage.widthAnchor.constraint(equalToConstant: 50),
+            viewsImage.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -outerPadding),
+            viewsImage.leadingAnchor.constraint(equalTo: leftView.leadingAnchor, constant: outerPadding),
+            viewsImage.heightAnchor.constraint(equalToConstant: 50),
+            viewsImage.widthAnchor.constraint(equalToConstant: 50),
             
-            flagLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -35),
-            flagLabel.leadingAnchor.constraint(equalTo: flagImage.trailingAnchor, constant: padding),
-            flagLabel.widthAnchor.constraint(equalToConstant: 100),
-            flagLabel.heightAnchor.constraint(equalToConstant: 20),
+            viewsLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -35),
+            viewsLabel.leadingAnchor.constraint(equalTo: viewsImage.trailingAnchor, constant: padding),
+            viewsLabel.widthAnchor.constraint(equalToConstant: 100),
+            viewsLabel.heightAnchor.constraint(equalToConstant: 20),
             
             currencyImage.topAnchor.constraint(equalTo: rightView.topAnchor, constant: outerPadding),
             currencyImage.leadingAnchor.constraint(equalTo: rightView.leadingAnchor, constant: outerPadding),

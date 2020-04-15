@@ -11,6 +11,9 @@ import MessageUI
 
 class ViewCarVC: UIViewController, MFMailComposeViewControllerDelegate {
     
+    let scrollView = UIScrollView()
+    let contentView = UIView()
+    
     let carImage = UIImageView()
     let carDescriptionLabel = UILabel()
     let contactOwnerLabel = UILabel()
@@ -23,6 +26,7 @@ class ViewCarVC: UIViewController, MFMailComposeViewControllerDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupScrollView()
         setupNav()
         getUser()
         add(childVC: ReportListingVC(listing: listing!, id: userID), to: reportView)
@@ -37,7 +41,7 @@ class ViewCarVC: UIViewController, MFMailComposeViewControllerDelegate {
             switch result {
             case .success(let user):
                 DispatchQueue.main.async {
-                    self.add(childVC: CarInfoVC(owner: user.name, price: "\(self.listing!.price)", year: "\(self.listing!.car.year)"), to: self.infoView)
+                    self.add(childVC: CarInfoVC(owner: user.name, price: "\(self.listing!.price)", year: "\(self.listing!.car.year!)", views: self.listing!.timesViewed), to: self.infoView)
                 }
             case.failure(let error):
                 print(error.rawValue)
@@ -46,10 +50,23 @@ class ViewCarVC: UIViewController, MFMailComposeViewControllerDelegate {
     }
     
     func setupNav() {
-        title = "\((listing?.car.make)! + " " + (listing?.car.model)!)"
+        title = "\((listing?.car.make ?? "") + " " + (listing?.car.model ?? ""))"
         let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissVC))
         doneButton.tintColor = .white
         navigationItem.leftBarButtonItem = doneButton
+    }
+    
+    func setupScrollView() {
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        
+        scrollView.pinToEdges(of: view)
+        contentView.pinToEdges(of: scrollView)
+        
+        NSLayoutConstraint.activate([
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            contentView.heightAnchor.constraint(equalToConstant: 856)
+        ])
     }
     
     @objc func dismissVC() {
@@ -95,8 +112,9 @@ class ViewCarVC: UIViewController, MFMailComposeViewControllerDelegate {
         carImageView.layer.borderColor = UIColor.white.cgColor
         
         carImage.clipsToBounds = true
+        carImage.contentMode = .scaleAspectFill
         carImage.translatesAutoresizingMaskIntoConstraints = false
-        carImage.image = UIImage(named: "Car")
+        carImage.load(url: URL(string: (listing?.photos?.first)!)!)
         
         carDescriptionLabel.text = listing?.description
         carDescriptionLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -118,52 +136,53 @@ class ViewCarVC: UIViewController, MFMailComposeViewControllerDelegate {
         
         contactOwnerButton.addTarget(self, action: #selector(contactOwner), for: .touchUpInside)
         
-        view.addSubview(carImageView)
-        view.addSubview(carDescriptionLabel)
-        view.addSubview(infoView)
-        view.addSubview(contactOwnerLabel)
-        view.addSubview(contactOwnerButton)
-        view.addSubview(reportView)
+        contentView.addSubview(carImageView)
+        contentView.addSubview(carDescriptionLabel)
+        contentView.addSubview(infoView)
+        contentView.addSubview(contactOwnerLabel)
+        contentView.addSubview(contactOwnerButton)
+        contentView.addSubview(reportView)
         
         let padding: CGFloat = 20
         let itemPadding: CGFloat = 10
         
+        reportView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        
         NSLayoutConstraint.activate([
         
-            carImageView.topAnchor.constraint(equalTo: view.topAnchor, constant: padding),
-            carImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
-            carImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
+            carImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: padding),
+            carImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: padding),
+            carImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -padding),
             carImageView.heightAnchor.constraint(equalToConstant: 200),
             
-            carImage.centerYAnchor.constraint(equalTo: carImageView.centerYAnchor),
-            carImage.centerXAnchor.constraint(equalTo: carImageView.centerXAnchor),
-            carImage.widthAnchor.constraint(equalToConstant: view.frame.width-20),
-            carImage.heightAnchor.constraint(equalToConstant: 220),
+            carImage.topAnchor.constraint(equalTo: contentView.topAnchor, constant: padding),
+            carImage.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: padding),
+            carImage.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -padding),
+            carImage.heightAnchor.constraint(equalToConstant: 200),
             
             carDescriptionLabel.topAnchor.constraint(equalTo: carImageView.bottomAnchor, constant: itemPadding),
-            carDescriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding+5),
-            carDescriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding-5),
+            carDescriptionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: padding+5),
+            carDescriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -padding-5),
             carDescriptionLabel.heightAnchor.constraint(equalToConstant: 40),
             
             infoView.topAnchor.constraint(equalTo: carDescriptionLabel.bottomAnchor, constant: itemPadding),
             infoView.heightAnchor.constraint(equalToConstant: 150),
-            infoView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            infoView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             infoView.widthAnchor.constraint(equalToConstant: 330),
             
             contactOwnerLabel.topAnchor.constraint(equalTo: infoView.bottomAnchor, constant: itemPadding),
-            contactOwnerLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 80),
-            contactOwnerLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -80),
+            contactOwnerLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 80),
+            contactOwnerLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -80),
             contactOwnerLabel.heightAnchor.constraint(equalToConstant: 40),
             
             contactOwnerButton.topAnchor.constraint(equalTo: contactOwnerLabel.bottomAnchor, constant: itemPadding),
-            contactOwnerButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 60),
-            contactOwnerButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -60),
+            contactOwnerButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 60),
+            contactOwnerButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -60),
             contactOwnerButton.heightAnchor.constraint(equalToConstant: 60),
             
             reportView.topAnchor.constraint(equalTo: contactOwnerButton.bottomAnchor, constant: padding),
-            reportView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            reportView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            reportView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            reportView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            reportView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
         ])
     }
 

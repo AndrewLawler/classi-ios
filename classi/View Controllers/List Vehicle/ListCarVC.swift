@@ -10,7 +10,6 @@ import UIKit
 
 class ListCarVC: UIViewController {
     
-    
     let titleField = ClassiTextField(placeholder: "Title", backgroundColour: .white, outline: .classiBlue)
     let imageUpload = ClassiButton(backgroundColor: .classiBlue, title: "Upload Image", textColor: .white, borderColour: .white)
     
@@ -28,6 +27,7 @@ class ListCarVC: UIViewController {
     var userID: Auth?
     var myDelegate: FromModal?
     
+    var image: UIImage?
     let submitButton = ClassiButton(backgroundColor: .classiBlue, title: "Submit", textColor: .white, borderColour: .white)
     
     override func viewDidLoad() {
@@ -49,7 +49,7 @@ class ListCarVC: UIViewController {
         dismiss(animated: true)
     }
     
-    lazy var contentViewSize = CGSize(width: self.view.frame.width, height: self.view.frame.height + 350)
+    lazy var contentViewSize = CGSize(width: self.view.frame.width, height: 1150)
     
     lazy var containerView: UIView = {
         let view = UIView()
@@ -72,12 +72,18 @@ class ListCarVC: UIViewController {
             switch result {
             case.success(let listing):
                 DispatchQueue.main.async {
-                    self.presentClassiAlertOnMainThread(title: "Car Listed", message: "Your \(listing.car.make + " " + listing.car.model) has been successfully listed on the classi marketplace.", buttonTitle: "Ok")
+                    self.presentClassiAlertOnMainThread(title: "Car Listed", message: "Your \(listing.car.make! + " " + listing.car.model!) has been successfully listed on the classi marketplace.", buttonTitle: "Ok")
                 }
             case.failure(let error):
                 print(error.rawValue)
             }
         }
+    }
+    
+    @objc fileprivate func uploadImage() {
+        let imagePickerController = UIImagePickerController()
+        imagePickerController.delegate = self
+        present(imagePickerController, animated: true)
     }
     
     func configure() {
@@ -106,7 +112,8 @@ class ListCarVC: UIViewController {
             element.layer.borderWidth = 5
             element.layer.borderColor = UIColor.classiBlue.cgColor
         }
-        
+    
+        imageUpload.addTarget(self, action: #selector(uploadImage), for: .touchUpInside)
         submitButton.addTarget(self, action: #selector(submit), for: .touchUpInside)
     
         submitButton.layer.cornerRadius = 25
@@ -198,10 +205,20 @@ class ListCarVC: UIViewController {
         
         
     }
-    
-    
-
 
 }
 
+extension ListCarVC: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        image = info[.originalImage] as? UIImage
+        
+        dismiss(animated: true)
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        dismiss(animated: true)
+    }
+    
+}
 

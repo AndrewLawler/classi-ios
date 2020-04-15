@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		64054D142437CD4100B0B734 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64054D132437CD4100B0B734 /* Constants.swift */; };
+		64054D162437DA6500B0B734 /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64054D152437DA6500B0B734 /* UIView.swift */; };
 		641E0DE024282E500029695E /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641E0DDF24282E500029695E /* NetworkManager.swift */; };
 		641E0DE324282F0A0029695E /* Listing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641E0DE224282F0A0029695E /* Listing.swift */; };
 		641E0DE72428358C0029695E /* SignUpVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641E0DE62428358C0029695E /* SignUpVC.swift */; };
@@ -46,6 +48,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		64054D132437CD4100B0B734 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		64054D152437DA6500B0B734 /* UIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIView.swift; sourceTree = "<group>"; };
 		641E0DDF24282E500029695E /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		641E0DE224282F0A0029695E /* Listing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Listing.swift; sourceTree = "<group>"; };
 		641E0DE62428358C0029695E /* SignUpVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpVC.swift; sourceTree = "<group>"; };
@@ -97,6 +101,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		64054D122437CD3500B0B734 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				64054D132437CD4100B0B734 /* Constants.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
 		641E0DDE24282E410029695E /* Managers */ = {
 			isa = PBXGroup;
 			children = (
@@ -173,6 +185,7 @@
 				64413E9A2415926000255A6A /* ClassiColours.swift */,
 				644C1F4724285BC800D99989 /* ViewControllerExtension.swift */,
 				6424BFC424294CB500CF12BE /* ImageViewExtension.swift */,
+				64054D152437DA6500B0B734 /* UIView.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -314,6 +327,7 @@
 		64FBBD1F241484A100787312 /* classi */ = {
 			isa = PBXGroup;
 			children = (
+				64054D122437CD3500B0B734 /* Utilities */,
 				642EB33224299AC100B9F29D /* Protocols */,
 				641E0DE124282F020029695E /* Structures */,
 				641E0DDE24282E410029695E /* Managers */,
@@ -411,6 +425,7 @@
 				641E0DE72428358C0029695E /* SignUpVC.swift in Sources */,
 				642A00E92415C47600FD19B5 /* ReportListingVC.swift in Sources */,
 				6424BFC524294CB500CF12BE /* ImageViewExtension.swift in Sources */,
+				64054D162437DA6500B0B734 /* UIView.swift in Sources */,
 				642A0B2724156B790035289B /* ClassiTextField.swift in Sources */,
 				644C1F5124285C5600D99989 /* ClassiBodyLabel.swift in Sources */,
 				644C1F46242855F600D99989 /* ClassiProfileLabel.swift in Sources */,
@@ -420,6 +435,7 @@
 				64FBBD2B241484A100787312 /* classi.xcdatamodeld in Sources */,
 				641E0DED242848830029695E /* Auth.swift in Sources */,
 				64FBBD4024148EA900787312 /* ProfileVC.swift in Sources */,
+				64054D142437CD4100B0B734 /* Constants.swift in Sources */,
 				64FBBD3A2414878800787312 /* ClassiButton.swift in Sources */,
 				6424BFBE24291B2300CF12BE /* ListCarVC.swift in Sources */,
 				64413E9B2415926000255A6A /* ClassiColours.swift in Sources */,

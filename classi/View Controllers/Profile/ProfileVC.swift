@@ -10,6 +10,9 @@ import UIKit
 
 class ProfileVC: UIViewController {
     
+    let scrollView = UIScrollView()
+    let contentView = UIView()
+    
     let headerView = UIView()
     let tableView = UITableView(frame: .zero, style: .grouped)
     let tableInfoLabel = UILabel()
@@ -22,6 +25,7 @@ class ProfileVC: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupScrollView()
         setupNav()
         getUserInfo()
         setupProfile()
@@ -33,13 +37,13 @@ class ProfileVC: UIViewController {
     }
     
     func getUserInfo(){
-        
+        print(userID!.user.id)
         NetworkManager.shared.getUser(id: userID!.user.id) { [weak self] result in
             guard let self = self else { return }
             switch result {
             case.success(let user):
                 DispatchQueue.main.async {
-                    let topVC = TopProfileVC(name: user.name, bio: "Lead iOS 🚀\n" + user.email + "\n" + user.registerDate.prefix(10), id: self.userID!, img: user.avatarUrl)
+                    let topVC = TopProfileVC(name: user.name, bio: user.email + "\n" + user.registerDate.prefix(10), id: self.userID!, img: user.avatarUrl!)
                     topVC.myDelegate = self
                     self.add(childVC: topVC, to: self.headerView)
                 }
@@ -59,6 +63,9 @@ class ProfileVC: UIViewController {
                     self.configureEmptyView()
                 }
             case.failure(let error):
+                DispatchQueue.main.async {
+                    self.configureEmptyView()
+                }
                 print(error.rawValue)
             }
         }
@@ -120,6 +127,19 @@ class ProfileVC: UIViewController {
         childVC.didMove(toParent: self)
     }
     
+    func setupScrollView() {
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        
+        scrollView.pinToEdges(of: view)
+        contentView.pinToEdges(of: scrollView)
+        
+        NSLayoutConstraint.activate([
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            contentView.heightAnchor.constraint(equalToConstant: 800)
+        ])
+    }
+    
     func configureEmptyView() {
         let emptyState = UIView()
         let emptyStateLabel = ClassiProfileLabel(textInput: "You have no 🚙 please list one.", numOfLines: 1)
@@ -133,7 +153,7 @@ class ProfileVC: UIViewController {
         emptyStateImage.translatesAutoresizingMaskIntoConstraints = false
         emptyStateImage.image = UIImage(systemName: "car")
         
-        view.addSubview(emptyState)
+        contentView.addSubview(emptyState)
         emptyState.addSubview(emptyStateLabel)
         emptyState.addSubview(emptyStateImage)
         
@@ -141,8 +161,8 @@ class ProfileVC: UIViewController {
         
         NSLayoutConstraint.activate([
             emptyState.topAnchor.constraint(equalTo: headerView.bottomAnchor),
-            emptyState.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 20),
-            emptyState.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -20),
+            emptyState.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 20),
+            emptyState.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -20),
             emptyState.heightAnchor.constraint(equalToConstant: 180),
             
             emptyStateLabel.topAnchor.constraint(equalTo: emptyState.topAnchor, constant: padding),
@@ -170,16 +190,14 @@ class ProfileVC: UIViewController {
             emptyStateLabel.isHidden = true
             emptyStateImage.isHidden = true
         }
-        
     }
     
     func setupProfile() {
-        
         headerView.translatesAutoresizingMaskIntoConstraints = false
         
-        view.addSubview(headerView)
-        view.addSubview(tableView)
-        view.addSubview(tableInfoLabel)
+        contentView.addSubview(headerView)
+        contentView.addSubview(tableView)
+        contentView.addSubview(tableInfoLabel)
         
         tableView.dataSource = self
         tableView.delegate = self
@@ -198,20 +216,20 @@ class ProfileVC: UIViewController {
         
         NSLayoutConstraint.activate([
             
-            headerView.topAnchor.constraint(equalTo: view.topAnchor),
-            headerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            headerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            headerView.heightAnchor.constraint(equalToConstant: 550),
+            headerView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            headerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            headerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            headerView.heightAnchor.constraint(equalToConstant: 412),
             
             tableView.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: padding),
-            tableView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: padding),
-            tableView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -padding),
-            tableView.heightAnchor.constraint(equalToConstant: 150),
+            tableView.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: padding),
+            tableView.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -padding),
+            tableView.heightAnchor.constraint(equalToConstant: 300),
             
             tableInfoLabel.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 10),
-            tableInfoLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableInfoLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableInfoLabel.heightAnchor.constraint(equalToConstant: 20)
+            tableInfoLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            tableInfoLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            tableInfoLabel.heightAnchor.constraint(equalToConstant: 15),
         ])
     }
     
@@ -226,7 +244,7 @@ extension ProfileVC: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "myCell", for: indexPath) as! ClassiCarProfileCell
         cell.accessoryType = UITableViewCell.AccessoryType.disclosureIndicator
-        cell.update(image: "", name: "\(yourCars[indexPath.row].car.make + " " + yourCars[indexPath.row].car.model)", carPrice: "\(yourCars[indexPath.row].price)", carYear: "\(yourCars[indexPath.row].car.year)")
+        cell.update(image: "\(yourCars[indexPath.row].photos?.first)", name: "\((yourCars[indexPath.row].car.make ?? "Make") + " " + (yourCars[indexPath.row].car.model ?? "Model"))" , carPrice: "\(yourCars[indexPath.row].price)" , carYear: "\(yourCars[indexPath.row].car.year ?? 0)")
         return cell
     }
     
@@ -272,7 +290,7 @@ extension ProfileVC: UITableViewDataSource, UITableViewDelegate {
                 switch result {
                     case.success(let cars):
                         DispatchQueue.main.async {
-                            self.presentClassiAlertOnMainThread(title: "Car Deleted", message: "You have deleted \(self.yourCars[indexPath.row].car.make + " " + self.yourCars[indexPath.row].car.model) from the marketplace.", buttonTitle: "Ok")
+                            self.presentClassiAlertOnMainThread(title: "Car Deleted", message: "You have deleted \(self.yourCars[indexPath.row].car.make! + " " + self.yourCars[indexPath.row].car.model!) from the marketplace.", buttonTitle: "Ok")
                             self.tableView.beginUpdates()
                             self.yourCars.remove(at: indexPath.row)
                             self.tableView.deleteRows(at: [indexPath], with: .fade)

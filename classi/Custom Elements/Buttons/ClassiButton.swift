@@ -23,15 +23,14 @@ class ClassiButton: UIButton {
     }
     
     // making a customsed initialiser for the button, think of this as a constructor
-    init(backgroundColor: UIColor, title: String, textColor: UIColor, borderColour: UIColor){
+    convenience init(backgroundColor: UIColor, title: String, textColor: UIColor, borderColour: UIColor){
         // needs to call super init and we have no frame so use .zero
-        super.init(frame: .zero)
+        self.init(frame: .zero)
         // set the background color and the title
         self.backgroundColor = backgroundColor
         self.setTitle(title, for: .normal)
         self.setTitleColor(textColor, for: .normal)
         self.layer.borderColor = borderColour.cgColor
-        configure()
     }
     
     private func configure() {

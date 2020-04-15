@@ -21,12 +21,13 @@ class SearchVC: UIViewController {
     var highlightedListing: [Listing] = []
     var ourListings: [Listing] = []
     var filteredListings: [Listing] = []
+    var userFavorites: [String] = []
     
     var isSearching = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .white
         getListings()
         customiseNavigationBar()
         configureSearchController()
@@ -36,6 +37,7 @@ class SearchVC: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        getListings()
         
         let profileButton = UIImageView()
         let signoutButton = UIImageView()
@@ -100,6 +102,22 @@ class SearchVC: UIViewController {
     }
     
     func getListings() {
+        if userID != nil {
+            NetworkManager.shared.getUser(id: userID!.user.id) { [weak self] result in
+                guard let self = self else { return }
+                switch result {
+                case .success(let user):
+                    DispatchQueue.main.async {
+                        self.userFavorites = user.favorites
+                        self.tableView.reloadData()
+                        self.highlightTableView.reloadData()
+                    }
+                case .failure(let error):
+                    print(error.rawValue)
+                }
+            }
+        }
+        
         NetworkManager.shared.getAllListings { [weak self] result in
             guard let self = self else { return }
             switch result {
@@ -117,11 +135,11 @@ class SearchVC: UIViewController {
         NetworkManager.shared.getTopListing { [weak self] result in
             guard let self = self else { return }
             switch result {
-            case.success(let topListingArray):
+            case.success(let topListing):
                 DispatchQueue.main.async {
-                    self.tableView.reloadData()
-                    self.highlightedListing = topListingArray
-                    self.tableView.reloadData()
+                    self.highlightTableView.reloadData()
+                    self.highlightedListing = topListing
+                    self.highlightTableView.reloadData()
                 }
             case.failure(let error):
                 print(error.rawValue)
@@ -202,6 +220,7 @@ class SearchVC: UIViewController {
         
         listCarLabel.textAlignment = .center
         listCarLabel.translatesAutoresizingMaskIntoConstraints = false
+        listCarLabel.adjustsFontSizeToFitWidth = true
         
         let attributedString = NSMutableAttributedString(string: "Click here to list your own car on the marketplace.", attributes: [
           .font: UIFont(name: "HelveticaNeue", size: 15),
@@ -231,7 +250,6 @@ class SearchVC: UIViewController {
         
         let borderView = UIView()
         borderView.addSubview(highlightTableView)
-        borderView.addSubview(specialLabel)
         borderView.translatesAutoresizingMaskIntoConstraints = false
         borderView.layer.cornerRadius = 15
         borderView.layer.borderColor = UIColor.classiBlue.cgColor
@@ -243,12 +261,9 @@ class SearchVC: UIViewController {
         highlightTableView.translatesAutoresizingMaskIntoConstraints = false
         highlightTableView.rowHeight = 130
         highlightTableView.isHidden = false
-        highlightTableView.register(ClassiCarCell.self, forCellReuseIdentifier: "myCell")
+        highlightTableView.register(ClassiCarCell.self, forCellReuseIdentifier: "myCell2")
         
         view.addSubview(borderView)
-
-        specialLabel.font = UIFont(name: "HelveticaNeue-Bold", size: 30)
-        specialLabel.textColor = .classiBlue
         
         let padding: CGFloat = 20
         
@@ -267,14 +282,9 @@ class SearchVC: UIViewController {
             borderView.topAnchor.constraint(equalTo: listCarLabel.bottomAnchor, constant: padding),
             borderView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
             borderView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
-            borderView.heightAnchor.constraint(equalToConstant: 195),
+            borderView.heightAnchor.constraint(equalToConstant: 150),
             
-            specialLabel.topAnchor.constraint(equalTo: borderView.topAnchor, constant: 10),
-            specialLabel.leadingAnchor.constraint(equalTo: borderView.leadingAnchor, constant: 10),
-            specialLabel.trailingAnchor.constraint(equalTo: borderView.trailingAnchor, constant: -10),
-            specialLabel.heightAnchor.constraint(equalToConstant: 35),
-            
-            highlightTableView.topAnchor.constraint(equalTo: specialLabel.bottomAnchor, constant: 10),
+            highlightTableView.topAnchor.constraint(equalTo: borderView.topAnchor, constant: 10),
             highlightTableView.leftAnchor.constraint(equalTo: borderView.leftAnchor, constant: 10),
             highlightTableView.rightAnchor.constraint(equalTo: borderView.rightAnchor, constant: -10),
             highlightTableView.heightAnchor.constraint(equalToConstant: 130),
@@ -282,11 +292,19 @@ class SearchVC: UIViewController {
             tableView.topAnchor.constraint(equalTo: borderView.bottomAnchor, constant: padding),
             tableView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: padding),
             tableView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -padding),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -padding*2)
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -10)
         
         ])
     }
     
+    func isListingFavorited(listingID: String) -> Bool {
+    
+        if userFavorites.contains(listingID) {
+            return true
+        } else {
+            return false
+        }
+    }
     
 }
 
@@ -305,10 +323,10 @@ extension SearchVC: UISearchResultsUpdating, UISearchBarDelegate {
             filteredListings = ourListings.filter { $0.price <= Int(filter)! ? true : false }
         }
         else if currentSegment == "Name" {
-            filteredListings = ourListings.filter { ($0.car.make.lowercased() + " " + $0.car.model.lowercased()).contains(filter.lowercased())  }
+            filteredListings = ourListings.filter { ($0.car.make!.lowercased() + " " + $0.car.model!.lowercased()).contains(filter.lowercased())  }
         }
         else if currentSegment == "Year" {
-            filteredListings = ourListings.filter { (String($0.car.year)).contains(filter.lowercased())  }
+            filteredListings = ourListings.filter { (String($0.car.year ?? 0)).contains(filter.lowercased())  }
         }
         tableView.reloadData()
     }
@@ -321,10 +339,10 @@ extension SearchVC: UISearchResultsUpdating, UISearchBarDelegate {
             filteredListings = ourListings.filter { $0.price <= Int(filter)! ? true : false }
         }
         else if currentSegment == "Name" {
-            filteredListings = ourListings.filter { ($0.car.make.lowercased() + " " + $0.car.model.lowercased()).contains(filter.lowercased())  }
+            filteredListings = ourListings.filter { ($0.car.make!.lowercased() + " " + $0.car.model!.lowercased()).contains(filter.lowercased())  }
         }
         else if currentSegment == "Year" {
-            filteredListings = ourListings.filter { (String($0.car.year)).contains(filter.lowercased())  }
+            filteredListings = ourListings.filter { (String($0.car.year ?? 0)).contains(filter.lowercased())  }
         }
         tableView.reloadData()
     }
@@ -339,15 +357,41 @@ extension SearchVC: UISearchResultsUpdating, UISearchBarDelegate {
 extension SearchVC: UITableViewDataSource, UITableViewDelegate, FavouritedImage {
     
     func didFav(result: Int) {
-        let activeArray = isSearching ? filteredListings : ourListings
-        print("did fav \(activeArray[result].car.make + " " + activeArray[result].car.model)")
+        if userID != nil {
+            let activeArray = isSearching ? filteredListings : ourListings
+            NetworkManager.shared.favoriteListing(token: userID!.token, listing: activeArray[result]._id) { [weak self] result in
+                guard let self = self else { return }
+                switch result {
+                case .success(let msg):
+                    print("Favorited:", msg.msg)
+                case .failure(let err):
+                    print("Error Message:", err.rawValue)
+                }
+            }
+        }
+        else {
+            self.presentClassiAlertOnMainThread(title: "Access Denied! Sign Up", message: "You cannot use that feature without signing up to the app.", buttonTitle: "Ok")
+        }
+        
     }
     
     func didUnFav(result: Int) {
-        let activeArray = isSearching ? filteredListings : ourListings
-        print("did un fav \(activeArray[result].car.make + " " + activeArray[result].car.model)")
+        if userID != nil {
+            let activeArray = isSearching ? filteredListings : ourListings
+            NetworkManager.shared.unFavoriteListing(token: userID!.token, listing: activeArray[result]._id) { [weak self] result in
+                guard let self = self else { return }
+                switch result {
+                case .success(let msg):
+                    print("Unfavorited", msg.msg)
+                case .failure(let err):
+                    print(err.rawValue)
+                }
+            }
+        }
+        else {
+            self.presentClassiAlertOnMainThread(title: "Access Denied! Sign Up", message: "You cannot use that feature without signing up to the app.", buttonTitle: "Ok")
+        }
     }
-    
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView == self.tableView {
@@ -355,7 +399,7 @@ extension SearchVC: UITableViewDataSource, UITableViewDelegate, FavouritedImage 
             return activeArray.count
         }
         else {
-            return 1
+            return highlightedListing.count
         }
         
     }
@@ -365,15 +409,15 @@ extension SearchVC: UITableViewDataSource, UITableViewDelegate, FavouritedImage 
             let cell = tableView.dequeueReusableCell(withIdentifier: "myCell", for: indexPath) as! ClassiCarCell
             cell.accessoryType = UITableViewCell.AccessoryType.disclosureIndicator
             let activeArray = isSearching ? filteredListings : ourListings
-            cell.update(image: "", name: "\(activeArray[indexPath.row].car.make + " " + activeArray[indexPath.row].car.model)", carPrice: "\(activeArray[indexPath.row].price)", carYear: "\(activeArray[indexPath.row].car.year)", row: indexPath.row)
+            cell.update(image: (activeArray[indexPath.row].photos?.first!)!, name: "\((activeArray[indexPath.row].car.make ?? "Make") + " " + (activeArray[indexPath.row].car.model ?? "Model"))" , carPrice: "\(activeArray[indexPath.row].price)" , carYear: "\(activeArray[indexPath.row].car.year ?? 0)" , row: indexPath.row, beenFavorited: isListingFavorited(listingID: activeArray[indexPath.row]._id))
             cell.myDelegate = self
             return cell
         }
         else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "myCell", for: indexPath) as! ClassiCarCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: "myCell2", for: indexPath) as! ClassiCarCell
             cell.accessoryType = UITableViewCell.AccessoryType.disclosureIndicator
-            //cell.update(image: "", name: "\(highlightedListing[indexPath.row].car.make + " " + highlightedListing[indexPath.row].car.model)", carPrice: "\(highlightedListing[indexPath.row].price)", carYear: "\(highlightedListing[indexPath.row].car.year)")
-            cell.update(image: "", name: "name", carPrice: "price", carYear: "year", row: indexPath.row)
+            cell.update(image: (highlightedListing[indexPath.row].photos?.first!)!, name: "\((highlightedListing[indexPath.row].car.make ?? "Make") + " " + (highlightedListing[indexPath.row].car.model ?? "Model"))" , carPrice: "\(highlightedListing[indexPath.row].price)" , carYear: "\(highlightedListing[indexPath.row].car.year ?? 0)" , row: indexPath.row, beenFavorited: isListingFavorited(listingID: highlightedListing[indexPath.row]._id))
+            cell.myDelegate = self
             return cell
         }
     }

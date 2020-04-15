@@ -18,3 +18,7 @@ struct UserAuth: Decodable {
     let name: String
     let email: String
 }
+
+struct Favorite: Decodable {
+    let msg: String
+}

@@ -24,7 +24,7 @@ class ReportListingVC: UIViewController {
     
     @objc func reported() {
         if userID != nil {
-            self.presentClassiAlertOnMainThread(title: "Reported Listing", message: "You have reported this listing of a \(listing.car.make) \(listing.car.model)", buttonTitle: "Ok")
+            self.presentClassiAlertOnMainThread(title: "Reported Listing", message: "You have reported this listing of a \(listing.car.make ?? "N.A") \(listing.car.model ?? "N.A")", buttonTitle: "Ok")
         }
         else {
             self.presentClassiAlertOnMainThread(title: "Access Denied! Sign Up", message: "You cannot use that feature without signing up to the app.", buttonTitle: "Ok")

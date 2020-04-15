@@ -9,14 +9,13 @@
 import Foundation
 
 struct User: Decodable {
+    let avatarUrl: String?
+    let favorites: [String]
     let _id: String
     let name: String
     let email: String
     let password: String
-    let browsingHistory: [String]
-    let searchHistory: [String]
     let registerDate: String
     let __v: Int
-    let avatarUrl: String?
 }
 

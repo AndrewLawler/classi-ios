@@ -6,7 +6,7 @@
 //  Copyright © 2020 andrewlawler. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 enum ClassiError: String, Error {
     case errorSearching    = "There has been an error while searching. Please try again."
@@ -19,9 +19,9 @@ class NetworkManager {
     
     let baseURL = "https://classi-server.herokuapp.com/api/"
     
-    func getAllListings(completed: @escaping (Result<[Listing], ClassiError>) -> Void) {
+    func getAllUsers(completed: @escaping (Result<[User], ClassiError>) -> Void) {
         
-        let endpoint = baseURL + "listings"
+        let endpoint = baseURL + "users"
 
         guard let url = URL(string: endpoint) else {
             return
@@ -48,10 +48,57 @@ class NetworkManager {
                 let decoder = JSONDecoder()
                 decoder.keyDecodingStrategy = .convertFromSnakeCase
                 
+                let listingArray = try decoder.decode([User].self, from: data)
+                completed(.success(listingArray))
+                
+            } catch {
+                completed(.failure(.errorSearching))
+            }
+            
+        }
+        
+        task.resume()
+        
+    }
+    
+    
+    func getAllListings(completed: @escaping (Result<[Listing], ClassiError>) -> Void) {
+        
+        let endpoint = baseURL + "listings"
+
+        guard let url = URL(string: endpoint) else {
+            return
+        }
+        
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+            
+            if let _ = error {
+                print("here 1")
+                completed(.failure(.errorSearching))
+                return
+            }
+            
+            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+                print("here 2")
+                completed(.failure(.errorSearching))
+                return
+            }
+            
+            guard let data = data else {
+                print("here 3")
+                completed(.failure(.errorSearching))
+                return
+            }
+            
+            do {
+                let decoder = JSONDecoder()
+                decoder.keyDecodingStrategy = .convertFromSnakeCase
+                
                 let listingArray = try decoder.decode([Listing].self, from: data)
                 completed(.success(listingArray))
                 
             } catch {
+                print("here 4")
                 completed(.failure(.errorSearching))
             }
             
@@ -355,53 +402,14 @@ class NetworkManager {
     }
     
     // somehow do form data
-    func postUserAvatar(token: String, user: String, completed: @escaping (Result<Listing, ClassiError>) -> Void) {
-        
-        let endpoint = baseURL + "images/avatars/:" + user
-
-        guard let url = URL(string: endpoint) else {
-            return
-        }
-        var authRequest = URLRequest(url: url)
-        authRequest.httpMethod = "POST"
-        authRequest.setValue("\(token)", forHTTPHeaderField: "X-Auth-Token")
-        
-        let postData = """
-        {
-        }
-        """.data(using: .utf8)
-        
-        authRequest.httpBody = postData
-        authRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-    
-        let task = URLSession.shared.dataTask(with: authRequest) { data, response, error in
-            
-            if let _ = error {
-                completed(.failure(.errorSearching))
-                return
-            }
-            
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                completed(.failure(.errorSearching))
-                return
-            }
-            
-            guard let data = data else {
-                completed(.failure(.errorSearching))
-                return
-            }
-            
-            do {
-                let decoder = JSONDecoder()
-                decoder.keyDecodingStrategy = .convertFromSnakeCase
-                
-                let listingAuth = try decoder.decode(Listing.self, from: data)
-                completed(.success(listingAuth))
-            } catch {
-                completed(.failure(.errorSearching))
-            }
-            
-        }
+    func postUserAvatar(token: String, image: UIImage) {
+        let req = NSMutableURLRequest(url: NSURL(string: baseURL + "images/avatars")! as URL)
+        let ses = URLSession.shared
+        req.httpMethod="POST"
+        req.setValue("\(token)", forHTTPHeaderField: "X-Auth-Token")
+        let jpgData = image.jpegData(compressionQuality: 1.0)
+        req.httpBodyStream = InputStream(data: jpgData!)
+        let task = ses.uploadTask(withStreamedRequest: req as URLRequest)
         task.resume()
     }
     
@@ -437,7 +445,7 @@ class NetworkManager {
     
     func getTopListing(completed: @escaping (Result<[Listing], ClassiError>) -> Void) {
         
-        let endpoint = baseURL + "listings/popular/:1"
+        let endpoint = baseURL + "listings/popular"
 
         guard let url = URL(string: endpoint) else {
             return
@@ -465,12 +473,98 @@ class NetworkManager {
                 decoder.keyDecodingStrategy = .convertFromSnakeCase
                 
                 let topListing = try decoder.decode([Listing].self, from: data)
-                completed(.success(topListing))
+                completed(.success([topListing.first!]))
                 
             } catch {
                 completed(.failure(.errorSearching))
             }
             
+        }
+        
+        task.resume()
+    }
+    
+    func favoriteListing(token: String, listing: String, completed: @escaping (Result<Favorite, ClassiError>) -> Void) {
+        
+        let endpoint = baseURL + "users/favorites/" + listing
+
+        guard let url = URL(string: endpoint) else {
+            return
+        }
+
+        var authRequest = URLRequest(url: url)
+        authRequest.httpMethod = "PUT"
+        authRequest.setValue("\(token)", forHTTPHeaderField: "X-Auth-Token")
+    
+        let task = URLSession.shared.dataTask(with: authRequest) { data, response, error in
+            
+            if let _ = error {
+                completed(.failure(.errorSearching))
+                return
+            }
+            
+            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+                completed(.failure(.errorSearching))
+                return
+            }
+            
+            guard let data = data else {
+                completed(.failure(.errorSearching))
+                return
+            }
+            
+            do {
+                let decoder = JSONDecoder()
+                decoder.keyDecodingStrategy = .convertFromSnakeCase
+                
+                let listingAuth = try decoder.decode(Favorite.self, from: data)
+                completed(.success(listingAuth))
+            } catch {
+                completed(.failure(.errorSearching))
+            }
+            
+        }
+        task.resume()
+    }
+    
+    func unFavoriteListing(token: String, listing: String, completed: @escaping (Result<Favorite, ClassiError>) -> Void) {
+        
+        let endpoint = baseURL + "users/favorites/" + listing
+
+        guard let url = URL(string: endpoint) else {
+            return
+        }
+
+        var authRequest = URLRequest(url: url)
+        authRequest.httpMethod = "DELETE"
+        authRequest.setValue("\(token)", forHTTPHeaderField: "X-Auth-Token")
+    
+        let task = URLSession.shared.dataTask(with: authRequest) { data, response, error in
+            
+            if let _ = error {
+                completed(.failure(.errorSearching))
+                return
+            }
+            
+            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+                completed(.failure(.errorSearching))
+                return
+            }
+            
+            guard let data = data else {
+                completed(.failure(.errorSearching))
+                return
+            }
+            
+            do {
+                let decoder = JSONDecoder()
+                decoder.keyDecodingStrategy = .convertFromSnakeCase
+                
+                let listingAuth = try decoder.decode(Favorite.self, from: data)
+                completed(.success(listingAuth))
+            } catch {
+                completed(.failure(.errorSearching))
+            }
         }
         
         task.resume()

@@ -16,34 +16,71 @@ class SignUpVC: UIViewController {
     let passwordField = ClassiTextField(placeholder: "Password", backgroundColour: .white, outline: .classiBlue)
     let loginButton = ClassiButton(backgroundColor: .classiBlue, title: "Sign Up", textColor: .white, borderColour: .white)
     let skipLabel = UILabel()
+    
+    var users: [User] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         navigationController?.setNavigationBarHidden(true, animated: true)
+        getUsers()
         configUI()
     }
     
-    @objc func loginButtonTapped() {
-        
-        NetworkManager.shared.createUser(name: nameField.text!, email: emailField.text!.lowercased(), password: passwordField.text!) { [weak self] result in
+    func getUsers() {
+        NetworkManager.shared.getAllUsers { [weak self] result in
+            guard let self = self else { return }
             switch result {
-            case.success(let response):
+            case .success(let users):
                 DispatchQueue.main.async {
-                    self!.goToApp(id: response)
+                    self.users = users
                 }
-            case.failure(let error):
+            case .failure(let error):
                 print(error.rawValue)
             }
         }
-        
+    }
+    
+    func isAlreadyUser() -> Bool {
+        var isUser = false
+        let mail = emailField.text!.lowercased()
+        for user in users {
+            if mail == user.email {
+                isUser = true
+            }
+        }
+        return isUser
+    }
+    
+    @objc func loginButtonTapped() {
+        if isAlreadyUser() == false {
+            NetworkManager.shared.createUser(name: nameField.text!, email: emailField.text!.lowercased(), password: passwordField.text!) { [weak self] result in
+                switch result {
+                case.success(let response):
+                    DispatchQueue.main.async {
+                        self!.goToApp(id: response)
+                    }
+                case.failure(let error):
+                    print(error.rawValue)
+                }
+            }
+        } else {
+            self.presentClassiAlertOnMainThread(title: "Already Registered", message: "That e-mail is already listed, please try again.", buttonTitle: "Ok")
+            emailField.text = ""
+        }
     }
     
     @objc func clickedSkip() {
         goToApp(id: nil)
     }
     
+    func createDismissKeyboardTapGesture() {
+        let tap = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing))
+        view.addGestureRecognizer(tap)
+    }
+    
     func configUI() {
+        createDismissKeyboardTapGesture()
         view.addSubview(classiLogo)
         view.addSubview(nameField)
         view.addSubview(emailField)
@@ -53,6 +90,7 @@ class SignUpVC: UIViewController {
         
         classiLogo.translatesAutoresizingMaskIntoConstraints = false
         classiLogo.image = UIImage(named: "logoImage")
+        classiLogo.contentMode = .scaleAspectFill
         
         loginButton.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
         
@@ -62,7 +100,50 @@ class SignUpVC: UIViewController {
         skipLabel.isUserInteractionEnabled = true
         skipLabel.adjustsFontSizeToFitWidth = true
         skipLabel.translatesAutoresizingMaskIntoConstraints = false
+        let loginTap = UITapGestureRecognizer(target: self, action: #selector(clickedSkip))
+        skipLabel.addGestureRecognizer(loginTap)
+        configureAttributedLabel(someLabel: skipLabel)
         
+        let padding: CGFloat = 20
+        
+        let topAnchorConstant: CGFloat = DeviceTypes.isiPhoneSE || DeviceTypes.isiPhone8Zoomed ? 40 : 140
+        
+        NSLayoutConstraint.activate([
+            
+            classiLogo.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: topAnchorConstant),
+            classiLogo.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            classiLogo.widthAnchor.constraint(equalToConstant: 300),
+            classiLogo.heightAnchor.constraint(equalToConstant: 140),
+            
+            nameField.topAnchor.constraint(equalTo: classiLogo.bottomAnchor, constant: padding+10),
+            nameField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            nameField.heightAnchor.constraint(equalToConstant: 45),
+            nameField.widthAnchor.constraint(equalToConstant: 300),
+            
+            emailField.topAnchor.constraint(equalTo: nameField.bottomAnchor, constant: padding),
+            emailField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            emailField.heightAnchor.constraint(equalToConstant: 45),
+            emailField.widthAnchor.constraint(equalToConstant: 300),
+            
+            passwordField.topAnchor.constraint(equalTo: emailField.bottomAnchor, constant: padding),
+            passwordField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            passwordField.heightAnchor.constraint(equalToConstant: 45),
+            passwordField.widthAnchor.constraint(equalToConstant: 300),
+            
+            loginButton.topAnchor.constraint(equalTo: passwordField.bottomAnchor, constant: padding*2),
+            loginButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            loginButton.heightAnchor.constraint(equalToConstant: 60),
+            loginButton.widthAnchor.constraint(equalToConstant: 200),
+            
+            skipLabel.topAnchor.constraint(equalTo: loginButton.bottomAnchor, constant: padding),
+            skipLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
+            skipLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
+            skipLabel.heightAnchor.constraint(equalToConstant: 30),
+        
+        ])
+    }
+    
+    func configureAttributedLabel(someLabel: UILabel) -> UILabel {
         let attributedString = NSMutableAttributedString(string: "Click here to skip the sign up and just enjoy the app!", attributes: [
             .font: UIFont(name: "HelveticaNeue", size: 25),
             .foregroundColor: UIColor.systemGray2
@@ -71,45 +152,8 @@ class SignUpVC: UIViewController {
             .font: UIFont(name: "HelveticaNeue-Bold", size: 25),
             .foregroundColor: UIColor.classiBlue
         ], range: NSRange(location: 6, length: 4))
-        skipLabel.attributedText = attributedString
-        let loginTap = UITapGestureRecognizer(target: self, action: #selector(clickedSkip))
-        skipLabel.addGestureRecognizer(loginTap)
-        
-        let padding: CGFloat = 20
-        
-        NSLayoutConstraint.activate([
-            
-            classiLogo.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 140),
-            classiLogo.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            classiLogo.widthAnchor.constraint(equalToConstant: 300),
-            classiLogo.heightAnchor.constraint(equalToConstant: 160),
-            
-            nameField.topAnchor.constraint(equalTo: classiLogo.bottomAnchor, constant: padding),
-            nameField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            nameField.heightAnchor.constraint(equalToConstant: 60),
-            nameField.widthAnchor.constraint(equalToConstant: 300),
-            
-            emailField.topAnchor.constraint(equalTo: nameField.bottomAnchor, constant: padding),
-            emailField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            emailField.heightAnchor.constraint(equalToConstant: 60),
-            emailField.widthAnchor.constraint(equalToConstant: 300),
-            
-            passwordField.topAnchor.constraint(equalTo: emailField.bottomAnchor, constant: padding),
-            passwordField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            passwordField.heightAnchor.constraint(equalToConstant: 60),
-            passwordField.widthAnchor.constraint(equalToConstant: 300),
-            
-            loginButton.topAnchor.constraint(equalTo: passwordField.bottomAnchor, constant: padding*2),
-            loginButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            loginButton.heightAnchor.constraint(equalToConstant: 60),
-            loginButton.widthAnchor.constraint(equalToConstant: 200),
-            
-            skipLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -padding*3),
-            skipLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
-            skipLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
-            skipLabel.heightAnchor.constraint(equalToConstant: 50),
-        
-        ])
+        someLabel.attributedText = attributedString
+        return someLabel
     }
     
     func goToApp(id: Auth?) {

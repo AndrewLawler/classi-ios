@@ -40,12 +40,14 @@ class ClassiCarCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func update(image: String, name: String, carPrice: String, carYear: String, row: Int) {
-        carImage.image = UIImage(named: "Car")
+    func update(image: String, name: String, carPrice: String, carYear: String, row: Int, beenFavorited: Bool) {
+        carImage.load(url: URL(string: image)!)
         carName.text = name
         priceLabel.text = carPrice
         yearLabel.text = carYear
         self.indexPathRow = row
+        self.isFavourited = beenFavorited
+        self.favourite.image = isFavourited ? UIImage(systemName: "star.fill") : UIImage(systemName: "star")
     }
     
     func configureFavImage() {
@@ -84,6 +86,7 @@ class ClassiCarCell: UITableViewCell {
         carName.textColor = .classiBlue
         carName.adjustsFontSizeToFitWidth = true
         
+        carImage.contentMode = .scaleAspectFill
         carImage.translatesAutoresizingMaskIntoConstraints = false
         
         let carImageView = UIView()
