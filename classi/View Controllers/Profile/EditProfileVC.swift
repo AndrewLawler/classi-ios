@@ -25,6 +25,8 @@ class EditProfileVC: UIViewController {
     var userID: Auth?
     var user: User?
     
+    var delegate: ProfileEdited?
+    
     lazy var contentViewSize = CGSize(width: self.view.frame.width, height: 450)
     
     lazy var containerView: UIView = {
@@ -59,6 +61,7 @@ class EditProfileVC: UIViewController {
     }
     
     @objc func dismissVC() {
+        delegate!.didEdit(answer: true)
         dismiss(animated: true)
     }
     
@@ -73,9 +76,13 @@ class EditProfileVC: UIViewController {
                 guard let self = self else { return }
                 switch result {
                 case .success(let resp):
-                    self.presentClassiAlertOnMainThread(title: "Success", message: "You have successfully changed your name to \(self.usernameTextView.text!).", buttonTitle: "Ok")
+                    DispatchQueue.main.async {
+                        self.presentClassiAlertOnMainThread(title: "Success", message: "You have successfully changed your name to \(self.usernameTextView.text!).", buttonTitle: "Ok")
+                    }
                 case .failure(let err):
-                    self.presentClassiAlertOnMainThread(title: "Error", message: "Your request could not be fulfilled, please try again.", buttonTitle: "Ok")
+                    DispatchQueue.main.async {
+                        self.presentClassiAlertOnMainThread(title: "Error", message: "Your request could not be fulfilled, please try again.", buttonTitle: "Ok")
+                    }
                 }
             }
         }

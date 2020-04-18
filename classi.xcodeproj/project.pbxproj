@@ -32,6 +32,7 @@
 		644C1F4D24285C1E00D99989 /* ClassiContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 644C1F4C24285C1E00D99989 /* ClassiContainerView.swift */; };
 		644C1F4F24285C4D00D99989 /* ClassiTitleLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 644C1F4E24285C4D00D99989 /* ClassiTitleLabel.swift */; };
 		644C1F5124285C5600D99989 /* ClassiBodyLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 644C1F5024285C5600D99989 /* ClassiBodyLabel.swift */; };
+		64C41AC3244BB85600C1D4EE /* ProfileEdited.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64C41AC2244BB85600C1D4EE /* ProfileEdited.swift */; };
 		64D587CD242A23F80022B64B /* FavouritedImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64D587CC242A23F80022B64B /* FavouritedImage.swift */; };
 		64D587D1242A277F0022B64B /* ClassiCarProfileCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64D587D0242A277F0022B64B /* ClassiCarProfileCell.swift */; };
 		64EF0A6624167C2800E2F1C6 /* EditProfileVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64EF0A6524167C2800E2F1C6 /* EditProfileVC.swift */; };
@@ -73,6 +74,7 @@
 		644C1F4C24285C1E00D99989 /* ClassiContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassiContainerView.swift; sourceTree = "<group>"; };
 		644C1F4E24285C4D00D99989 /* ClassiTitleLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassiTitleLabel.swift; sourceTree = "<group>"; };
 		644C1F5024285C5600D99989 /* ClassiBodyLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassiBodyLabel.swift; sourceTree = "<group>"; };
+		64C41AC2244BB85600C1D4EE /* ProfileEdited.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileEdited.swift; sourceTree = "<group>"; };
 		64D587CC242A23F80022B64B /* FavouritedImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritedImage.swift; sourceTree = "<group>"; };
 		64D587D0242A277F0022B64B /* ClassiCarProfileCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassiCarProfileCell.swift; sourceTree = "<group>"; };
 		64EF0A6524167C2800E2F1C6 /* EditProfileVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileVC.swift; sourceTree = "<group>"; };
@@ -244,6 +246,7 @@
 			children = (
 				642EB3302429951300B9F29D /* fromModal.swift */,
 				64D587CC242A23F80022B64B /* FavouritedImage.swift */,
+				64C41AC2244BB85600C1D4EE /* ProfileEdited.swift */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
@@ -437,6 +440,7 @@
 				64FBBD4024148EA900787312 /* ProfileVC.swift in Sources */,
 				64054D142437CD4100B0B734 /* Constants.swift in Sources */,
 				64FBBD3A2414878800787312 /* ClassiButton.swift in Sources */,
+				64C41AC3244BB85600C1D4EE /* ProfileEdited.swift in Sources */,
 				6424BFBE24291B2300CF12BE /* ListCarVC.swift in Sources */,
 				64413E9B2415926000255A6A /* ClassiColours.swift in Sources */,
 				64386DFB24159931009A8C64 /* ClassiCarCell.swift in Sources */,

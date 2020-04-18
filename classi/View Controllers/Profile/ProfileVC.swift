@@ -39,7 +39,6 @@ class ProfileVC: UIViewController {
     }
     
     func getUserInfo(){
-        print(userID!.user.id)
         NetworkManager.shared.getUser(id: userID!.user.id) { [weak self] result in
             guard let self = self else { return }
             switch result {
@@ -94,6 +93,7 @@ class ProfileVC: UIViewController {
     @objc func editProfileVC() {
         let destVC = EditProfileVC()
         destVC.userID = userID
+        destVC.delegate = self
         destVC.user = self.user
         let navController = UINavigationController(rootViewController: destVC)
         navController.navigationBar.isTranslucent = false
@@ -321,7 +321,16 @@ extension ProfileVC: InnerChild {
             getUserInfo()
         }
     }
+
+}
+
+extension ProfileVC: ProfileEdited {
     
+    func didEdit(answer: Bool) {
+        if answer == true {
+            getUserInfo()
+        }
+    }
     
 }
 
