@@ -33,7 +33,6 @@ class SearchVC: UIViewController {
         configureSearchController()
         configureSegmentedController()
         configureUI()
-        createDismissKeyboardTapGesture()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -62,11 +61,6 @@ class SearchVC: UIViewController {
             navigationItem.rightBarButtonItem = signup
         }
         navigationItem.leftBarButtonItem = profile
-    }
-    
-    func createDismissKeyboardTapGesture() {
-        let tap = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing))
-        view.addGestureRecognizer(tap)
     }
     
     @objc func profileVC() {
