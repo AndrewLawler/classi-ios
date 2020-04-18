@@ -21,6 +21,8 @@ class ProfileVC: UIViewController {
     var yourCars: [Listing] = []
     var mainImg: Data?
     
+    var user: User?
+    
     var myDelegate: FromModal?
 
     override func viewDidLoad() {
@@ -46,6 +48,7 @@ class ProfileVC: UIViewController {
                     let topVC = TopProfileVC(name: user.name, bio: user.email + "\n" + user.registerDate.prefix(10), id: self.userID!, img: user.avatarUrl!)
                     topVC.myDelegate = self
                     self.add(childVC: topVC, to: self.headerView)
+                    self.user = user
                 }
             case.failure(let error):
                 print(error.rawValue)
@@ -91,6 +94,7 @@ class ProfileVC: UIViewController {
     @objc func editProfileVC() {
         let destVC = EditProfileVC()
         destVC.userID = userID
+        destVC.user = self.user
         let navController = UINavigationController(rootViewController: destVC)
         navController.navigationBar.isTranslucent = false
         navController.navigationBar.prefersLargeTitles = true
@@ -244,7 +248,7 @@ extension ProfileVC: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "myCell", for: indexPath) as! ClassiCarProfileCell
         cell.accessoryType = UITableViewCell.AccessoryType.disclosureIndicator
-        cell.update(image: "\(yourCars[indexPath.row].photos?.first)", name: "\((yourCars[indexPath.row].car.make ?? "Make") + " " + (yourCars[indexPath.row].car.model ?? "Model"))" , carPrice: "\(yourCars[indexPath.row].price)" , carYear: "\(yourCars[indexPath.row].car.year ?? 0)")
+        cell.update(image: (yourCars[indexPath.row].photos?.first)!, name: "\((yourCars[indexPath.row].car.make ?? "Make") + " " + (yourCars[indexPath.row].car.model ?? "Model"))" , carPrice: "\(yourCars[indexPath.row].price)" , carYear: "\(yourCars[indexPath.row].car.year ?? 0)")
         return cell
     }
     
@@ -276,6 +280,9 @@ extension ProfileVC: UITableViewDataSource, UITableViewDelegate {
         navController.navigationBar.prefersLargeTitles = true
         navController.navigationBar.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
         navController.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
+        let headerAppearance = editAppearance()
+        navController.navigationBar.scrollEdgeAppearance = headerAppearance
+        navController.navigationBar.standardAppearance = headerAppearance
         present(navController, animated: true)
     }
     

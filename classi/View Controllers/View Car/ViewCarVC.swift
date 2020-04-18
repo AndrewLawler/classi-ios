@@ -15,7 +15,7 @@ class ViewCarVC: UIViewController, MFMailComposeViewControllerDelegate {
     let contentView = UIView()
     
     let carImage = UIImageView()
-    let carDescriptionLabel = UILabel()
+    let carDescriptionBox = UITextView()
     let contactOwnerLabel = UILabel()
     let contactOwnerButton = ClassiButton(backgroundColor: .white, title: "Contact Owner", textColor: .classiBlue, borderColour: .classiBlue)
     let reportView = UIView()
@@ -65,7 +65,7 @@ class ViewCarVC: UIViewController, MFMailComposeViewControllerDelegate {
         
         NSLayoutConstraint.activate([
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-            contentView.heightAnchor.constraint(equalToConstant: 856)
+            contentView.heightAnchor.constraint(equalToConstant: 896)
         ])
     }
     
@@ -116,13 +116,14 @@ class ViewCarVC: UIViewController, MFMailComposeViewControllerDelegate {
         carImage.translatesAutoresizingMaskIntoConstraints = false
         carImage.load(url: URL(string: (listing?.photos?.first)!)!)
         
-        carDescriptionLabel.text = listing?.description
-        carDescriptionLabel.translatesAutoresizingMaskIntoConstraints = false
-        carDescriptionLabel.textAlignment = .center
-        carDescriptionLabel.numberOfLines = 0
-        carDescriptionLabel.adjustsFontSizeToFitWidth = true
-        carDescriptionLabel.font = UIFont(name: "HelveticaNeue", size: 15)
-        carDescriptionLabel.textColor = .white
+        carDescriptionBox.translatesAutoresizingMaskIntoConstraints = false
+        carDescriptionBox.text = listing?.description
+        carDescriptionBox.isEditable = false
+        carDescriptionBox.isUserInteractionEnabled = true
+        carDescriptionBox.textAlignment = .center
+        carDescriptionBox.font = UIFont(name: "HelveticaNeue", size: 15)
+        carDescriptionBox.textColor = .white
+        carDescriptionBox.backgroundColor = .clear
         
         contactOwnerLabel.text = "Contact the owner to view or make a bid on this vehicle."
         contactOwnerLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -137,7 +138,7 @@ class ViewCarVC: UIViewController, MFMailComposeViewControllerDelegate {
         contactOwnerButton.addTarget(self, action: #selector(contactOwner), for: .touchUpInside)
         
         contentView.addSubview(carImageView)
-        contentView.addSubview(carDescriptionLabel)
+        contentView.addSubview(carDescriptionBox)
         contentView.addSubview(infoView)
         contentView.addSubview(contactOwnerLabel)
         contentView.addSubview(contactOwnerButton)
@@ -160,12 +161,12 @@ class ViewCarVC: UIViewController, MFMailComposeViewControllerDelegate {
             carImage.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -padding),
             carImage.heightAnchor.constraint(equalToConstant: 200),
             
-            carDescriptionLabel.topAnchor.constraint(equalTo: carImageView.bottomAnchor, constant: itemPadding),
-            carDescriptionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: padding+5),
-            carDescriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -padding-5),
-            carDescriptionLabel.heightAnchor.constraint(equalToConstant: 40),
+            carDescriptionBox.topAnchor.constraint(equalTo: carImageView.bottomAnchor, constant: itemPadding),
+            carDescriptionBox.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: padding+5),
+            carDescriptionBox.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -padding-5),
+            carDescriptionBox.heightAnchor.constraint(equalToConstant: 80),
             
-            infoView.topAnchor.constraint(equalTo: carDescriptionLabel.bottomAnchor, constant: itemPadding),
+            infoView.topAnchor.constraint(equalTo: carDescriptionBox.bottomAnchor, constant: itemPadding),
             infoView.heightAnchor.constraint(equalToConstant: 150),
             infoView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             infoView.widthAnchor.constraint(equalToConstant: 330),

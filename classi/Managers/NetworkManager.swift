@@ -295,7 +295,7 @@ class NetworkManager {
         task.resume()
     }
     
-    func listCar(token: String, title: String, price: Int, location: String, description: String?, phone: String?, email: String?, make: String?, model: String?, year: Int?, mileage: Int?, completed: @escaping (Result<Listing, ClassiError>) -> Void) {
+    func listCar(token: String, title: String, price: Int, description: String, make: String, model: String, year: Int, mileage: Int, postcode: String, completed: @escaping (Result<Listing, ClassiError>) -> Void) {
         
         let endpoint = baseURL + "listings"
 
@@ -305,28 +305,13 @@ class NetworkManager {
 
         var authRequest = URLRequest(url: url)
         authRequest.httpMethod = "POST"
-        authRequest.setValue("\(token)", forHTTPHeaderField: "X-Auth-Token")
-        
+    
         let postData = """
-        {
-            "title": "\(title)",
-            "price": \(price),
-            "location": {
-                "postcode": "\(location)"
-            },
-            "description": "\(description!)",
-            "phone": "\(phone!)",
-            "email": "\(email!)",
-            "car": {
-                "make": "\(make!)",
-                "model": "\(model!)",
-                "year": \(year!),
-                "mileage": \(mileage!)
-            }
-        }
+        {"title": "\(title)", "price": \(price), "description": "\(description)", "car": {"make": "\(make)", "model": "\(model)", "year": \(year), "mileage": \(mileage)}, "location": {"postcode": "\(postcode)"}}
         """.data(using: .utf8)
         
         authRequest.httpBody = postData
+        authRequest.setValue("\(token)", forHTTPHeaderField: "X-Auth-Token")
         authRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
     
         let task = URLSession.shared.dataTask(with: authRequest) { data, response, error in
@@ -398,18 +383,6 @@ class NetworkManager {
             
         }
         
-        task.resume()
-    }
-    
-    // somehow do form data
-    func postUserAvatar(token: String, image: UIImage) {
-        let req = NSMutableURLRequest(url: NSURL(string: baseURL + "images/avatars")! as URL)
-        let ses = URLSession.shared
-        req.httpMethod="POST"
-        req.setValue("\(token)", forHTTPHeaderField: "X-Auth-Token")
-        let jpgData = image.jpegData(compressionQuality: 1.0)
-        req.httpBodyStream = InputStream(data: jpgData!)
-        let task = ses.uploadTask(withStreamedRequest: req as URLRequest)
         task.resume()
     }
     
@@ -567,6 +540,98 @@ class NetworkManager {
             }
         }
         
+        task.resume()
+    }
+    
+    func reportListing(listing: String, completed: @escaping (Result<Favorite, ClassiError>) -> Void) {
+        
+        let endpoint = baseURL + "listings/report/" + listing
+
+        guard let url = URL(string: endpoint) else {
+            return
+        }
+
+        var authRequest = URLRequest(url: url)
+        authRequest.httpMethod = "PUT"
+    
+        let task = URLSession.shared.dataTask(with: authRequest) { data, response, error in
+            
+            if let _ = error {
+                completed(.failure(.errorSearching))
+                return
+            }
+            
+            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+                completed(.failure(.errorSearching))
+                return
+            }
+            
+            guard let data = data else {
+                completed(.failure(.errorSearching))
+                return
+            }
+            
+            do {
+                let decoder = JSONDecoder()
+                decoder.keyDecodingStrategy = .convertFromSnakeCase
+                
+                let serverResponse = try decoder.decode(Favorite.self, from: data)
+                completed(.success(serverResponse))
+            } catch {
+                completed(.failure(.errorSearching))
+            }
+        }
+        task.resume()
+    }
+    
+    func editName(user: String, name: String, token: String, completed: @escaping (Result<User, ClassiError>) -> Void) {
+        
+        let endpoint = baseURL + "users/" + user
+
+        guard let url = URL(string: endpoint) else {
+            return
+        }
+
+        var authRequest = URLRequest(url: url)
+        authRequest.httpMethod = "PUT"
+        authRequest.setValue("\(token)", forHTTPHeaderField: "X-Auth-Token")
+        authRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let postData = """
+        {
+            "name": "\(name)"
+        }
+        """.data(using: .utf8)
+        
+        authRequest.httpBody = postData
+    
+        let task = URLSession.shared.dataTask(with: authRequest) { data, response, error in
+            
+            if let _ = error {
+                completed(.failure(.errorSearching))
+                return
+            }
+            
+            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+                completed(.failure(.errorSearching))
+                return
+            }
+            
+            guard let data = data else {
+                completed(.failure(.errorSearching))
+                return
+            }
+            
+            do {
+                let decoder = JSONDecoder()
+                decoder.keyDecodingStrategy = .convertFromSnakeCase
+                
+                let serverResponse = try decoder.decode(User.self, from: data)
+                completed(.success(serverResponse))
+            } catch {
+                completed(.failure(.errorSearching))
+            }
+        }
         task.resume()
     }
     

@@ -55,6 +55,15 @@ class FavouritesVC: UIViewController {
         navigationItem.leftBarButtonItem = profile
     }
     
+    func editAppearance() -> UINavigationBarAppearance {
+        let coloredAppearance = UINavigationBarAppearance()
+        coloredAppearance.configureWithOpaqueBackground()
+        coloredAppearance.backgroundColor = .classiBlue
+        coloredAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+        coloredAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+        return coloredAppearance
+    }
+    
     func unFavoriteListing(index: Int) {
         NetworkManager.shared.unFavoriteListing(token: userID!.token, listing: favouritedCars[index]._id) { [weak self] result in
             guard let self = self else { return }
@@ -239,6 +248,9 @@ extension FavouritesVC: UITableViewDataSource, UITableViewDelegate, FavouritedIm
         navController.navigationBar.prefersLargeTitles = true
         navController.navigationBar.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
         navController.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
+        let headerAppearance = editAppearance()
+        navController.navigationBar.scrollEdgeAppearance = headerAppearance
+        navController.navigationBar.standardAppearance = headerAppearance
         present(navController, animated: true)
     }
     

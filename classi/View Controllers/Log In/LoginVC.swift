@@ -31,7 +31,7 @@ class LoginVC: UIViewController {
                     self.presentTabController(response)
                 }
             case.failure(let error):
-                print(error.rawValue)
+                self?.presentClassiAlertOnMainThread(title: "Error, try again", message: "One or more entered fields are invalid. Please try again.", buttonTitle: "Ok")
             }
         }
         

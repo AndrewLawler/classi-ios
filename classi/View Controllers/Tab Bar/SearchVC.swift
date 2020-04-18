@@ -33,6 +33,7 @@ class SearchVC: UIViewController {
         configureSearchController()
         configureSegmentedController()
         configureUI()
+        createDismissKeyboardTapGesture()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -61,6 +62,11 @@ class SearchVC: UIViewController {
             navigationItem.rightBarButtonItem = signup
         }
         navigationItem.leftBarButtonItem = profile
+    }
+    
+    func createDismissKeyboardTapGesture() {
+        let tap = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing))
+        view.addGestureRecognizer(tap)
     }
     
     @objc func profileVC() {
@@ -434,6 +440,9 @@ extension SearchVC: UITableViewDataSource, UITableViewDelegate, FavouritedImage 
             navController.navigationBar.prefersLargeTitles = true
             navController.navigationBar.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
             navController.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
+            let headerAppearance = editAppearance()
+            navController.navigationBar.scrollEdgeAppearance = headerAppearance
+            navController.navigationBar.standardAppearance = headerAppearance
             present(navController, animated: true)
         }
         else if tableView == highlightTableView {
@@ -446,6 +455,9 @@ extension SearchVC: UITableViewDataSource, UITableViewDelegate, FavouritedImage 
             navController.navigationBar.prefersLargeTitles = true
             navController.navigationBar.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
             navController.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
+            let headerAppearance = editAppearance()
+            navController.navigationBar.scrollEdgeAppearance = headerAppearance
+            navController.navigationBar.standardAppearance = headerAppearance
             present(navController, animated: true)
         }
     }

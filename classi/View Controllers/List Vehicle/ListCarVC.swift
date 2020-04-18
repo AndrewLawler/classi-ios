@@ -7,11 +7,12 @@
 //
 
 import UIKit
+import SafariServices
 
 class ListCarVC: UIViewController {
     
     let titleField = ClassiTextField(placeholder: "Title", backgroundColour: .white, outline: .classiBlue)
-    let imageUpload = ClassiButton(backgroundColor: .classiBlue, title: "Upload Image", textColor: .white, borderColour: .white)
+    let imageUpload = ClassiButton(backgroundColor: .classiBlue, title: "Upload Image via Website", textColor: .white, borderColour: .white)
     
     let makeField = ClassiTextField(placeholder: "Make of Car", backgroundColour: .white, outline: .classiBlue)
     let modelField = ClassiTextField(placeholder: "Model of Car", backgroundColour: .white, outline: .classiBlue)
@@ -21,8 +22,6 @@ class ListCarVC: UIViewController {
     let priceField = ClassiTextField(placeholder: "Price of Car", backgroundColour: .white, outline: .classiBlue)
     let descriptionField = ClassiTextField(placeholder: "Description of Car", backgroundColour: .white, outline: .classiBlue)
     let postcodeField = ClassiTextField(placeholder: "Postcode", backgroundColour: .white, outline: .classiBlue)
-    let phoneField = ClassiTextField(placeholder: "Phone Number", backgroundColour: .white, outline: .classiBlue)
-    let emailField = ClassiTextField(placeholder: "Email", backgroundColour: .white, outline: .classiBlue)
     
     var userID: Auth?
     var myDelegate: FromModal?
@@ -34,6 +33,7 @@ class ListCarVC: UIViewController {
         super.viewDidLoad()
         setupNav()
         configure()
+        createDismissKeyboardTapGesture()
     }
     
     func setupNav() {
@@ -49,7 +49,7 @@ class ListCarVC: UIViewController {
         dismiss(animated: true)
     }
     
-    lazy var contentViewSize = CGSize(width: self.view.frame.width, height: 1150)
+    lazy var contentViewSize = CGSize(width: self.view.frame.width, height: 990)
     
     lazy var containerView: UIView = {
         let view = UIView()
@@ -66,8 +66,13 @@ class ListCarVC: UIViewController {
         return view
     }()
     
+    func createDismissKeyboardTapGesture() {
+        let tap = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing))
+        view.addGestureRecognizer(tap)
+    }
+    
     @objc func submit() {
-        NetworkManager.shared.listCar(token: userID!.token, title: titleField.text!, price: Int(priceField.text!)!, location: postcodeField.text!, description: descriptionField.text, phone: phoneField.text, email: emailField.text, make: makeField.text, model: modelField.text, year: Int(yearField.text!), mileage: Int(mileageField.text!)) { [weak self] result in
+        NetworkManager.shared.listCar(token: userID!.token, title: titleField.text!, price: Int(priceField.text!)!, description: descriptionField.text!, make: makeField.text!, model: modelField.text!, year: Int(yearField.text!)!, mileage: Int(mileageField.text!)!, postcode: postcodeField.text!) { [weak self] result in
             guard let self = self else { return }
             switch result {
             case.success(let listing):
@@ -80,10 +85,13 @@ class ListCarVC: UIViewController {
         }
     }
     
-    @objc fileprivate func uploadImage() {
-        let imagePickerController = UIImagePickerController()
-        imagePickerController.delegate = self
-        present(imagePickerController, animated: true)
+    @objc func showSite() {
+        if let url = URL(string: "https://classi-client.herokuapp.com") {
+            let config = SFSafariViewController.Configuration()
+            config.entersReaderIfAvailable = true
+            let vc = SFSafariViewController(url: url, configuration: config)
+            present(vc, animated: true)
+        }
     }
     
     func configure() {
@@ -101,11 +109,9 @@ class ListCarVC: UIViewController {
         containerView.addSubview(priceField)
         containerView.addSubview(descriptionField)
         containerView.addSubview(postcodeField)
-        containerView.addSubview(phoneField)
-        containerView.addSubview(emailField)
         containerView.addSubview(submitButton)
         
-        let elements: [UITextField] = [titleField, makeField, modelField, yearField, mileageField, priceField, descriptionField, postcodeField, phoneField, emailField]
+        let elements: [UITextField] = [titleField, makeField, modelField, yearField, mileageField, priceField, descriptionField, postcodeField]
         for element in elements {
             element.textColor = .classiBlue
             element.attributedPlaceholder = NSAttributedString(string: element.placeholder!, attributes: [NSAttributedString.Key.foregroundColor : UIColor.systemGray3])
@@ -113,7 +119,7 @@ class ListCarVC: UIViewController {
             element.layer.borderColor = UIColor.classiBlue.cgColor
         }
     
-        imageUpload.addTarget(self, action: #selector(uploadImage), for: .touchUpInside)
+        imageUpload.addTarget(self, action: #selector(showSite), for: .touchUpInside)
         submitButton.addTarget(self, action: #selector(submit), for: .touchUpInside)
     
         submitButton.layer.cornerRadius = 25
@@ -146,7 +152,7 @@ class ListCarVC: UIViewController {
             
             imageUpload.topAnchor.constraint(equalTo: titleField.bottomAnchor, constant: padding),
             imageUpload.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            imageUpload.widthAnchor.constraint(equalToConstant: 160),
+            imageUpload.widthAnchor.constraint(equalToConstant: 250),
             imageUpload.heightAnchor.constraint(equalToConstant: 50),
             
             makeField.topAnchor.constraint(equalTo: imageUpload.bottomAnchor, constant: padding),
@@ -184,17 +190,7 @@ class ListCarVC: UIViewController {
             postcodeField.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -padding),
             postcodeField.heightAnchor.constraint(equalToConstant: 50),
             
-            phoneField.topAnchor.constraint(equalTo: postcodeField.bottomAnchor, constant: padding),
-            phoneField.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: padding),
-            phoneField.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -padding),
-            phoneField.heightAnchor.constraint(equalToConstant: 50),
-            
-            emailField.topAnchor.constraint(equalTo: phoneField.bottomAnchor, constant: padding*2),
-            emailField.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: padding),
-            emailField.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -padding),
-            emailField.heightAnchor.constraint(equalToConstant: 50),
-            
-            submitButton.topAnchor.constraint(equalTo: emailField.bottomAnchor, constant: padding*2),
+            submitButton.topAnchor.constraint(equalTo: postcodeField.bottomAnchor, constant: padding*2),
             submitButton.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
             submitButton.heightAnchor.constraint(equalToConstant: 60),
             submitButton.widthAnchor.constraint(equalToConstant: 250)
@@ -207,18 +203,3 @@ class ListCarVC: UIViewController {
     }
 
 }
-
-extension ListCarVC: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        image = info[.originalImage] as? UIImage
-        
-        dismiss(animated: true)
-    }
-    
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        dismiss(animated: true)
-    }
-    
-}
-

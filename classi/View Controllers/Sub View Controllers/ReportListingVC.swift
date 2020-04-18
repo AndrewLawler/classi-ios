@@ -24,7 +24,16 @@ class ReportListingVC: UIViewController {
     
     @objc func reported() {
         if userID != nil {
-            self.presentClassiAlertOnMainThread(title: "Reported Listing", message: "You have reported this listing of a \(listing.car.make ?? "N.A") \(listing.car.model ?? "N.A")", buttonTitle: "Ok")
+            NetworkManager.shared.reportListing(listing: listing._id) { [weak self] result in
+                guard let self = self else { return }
+                switch result {
+                case .success(let resp):
+                    print(resp)
+                    self.presentClassiAlertOnMainThread(title: "Reported Listing", message: "You have reported this listing of a \(self.listing.car.make ?? "N.A") \(self.listing.car.model ?? "N.A")", buttonTitle: "Ok")
+                case .failure(let err):
+                    self.presentClassiAlertOnMainThread(title: "Error Reporting", message: "There has been an error reporting this listing", buttonTitle: "Ok")
+                }
+            }
         }
         else {
             self.presentClassiAlertOnMainThread(title: "Access Denied! Sign Up", message: "You cannot use that feature without signing up to the app.", buttonTitle: "Ok")

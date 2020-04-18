@@ -7,28 +7,25 @@
 //
 
 import UIKit
+import SafariServices
 
 class EditProfileVC: UIViewController {
     
     let usernameTextView = UITextField()
-    let bioTextView = UITextField()
-    let emailTextView = UITextField()
     
     let infoLabel = UILabel()
     let imageInfoLabel = UILabel()
-    let emailInfoLabel = UILabel()
-    
-    let emailLabel = ClassiProfileLabel(textInput: "E-mail", numOfLines: 1)
     let usernameLabel = ClassiProfileLabel(textInput: "Name", numOfLines: 2)
-    let bioLabel = ClassiProfileLabel(textInput: "Bio", numOfLines: 1)
     
     let saveButton = ClassiButton(backgroundColor: .classiBlue, title: "Save Changes", textColor: .white, borderColour: .classiBlue)
-    let imageUploadButton = ClassiButton(backgroundColor: .white, title: "Upload Image", textColor: .classiBlue, borderColour: .classiBlue)
+    let imageUploadButton = ClassiButton(backgroundColor: .white, title: "Upload Image via Website", textColor: .classiBlue, borderColour: .classiBlue)
     
     var image: UIImage?
-    var userID: Auth?
     
-    lazy var contentViewSize = CGSize(width: self.view.frame.width, height: 1000)
+    var userID: Auth?
+    var user: User?
+    
+    lazy var contentViewSize = CGSize(width: self.view.frame.width, height: 450)
     
     lazy var containerView: UIView = {
         let view = UIView()
@@ -50,6 +47,7 @@ class EditProfileVC: UIViewController {
         view.backgroundColor = .white
         configure()
         setupNav()
+        createDismissKeyboardTapGesture()
     }
     
     func setupNav() {
@@ -64,15 +62,32 @@ class EditProfileVC: UIViewController {
         dismiss(animated: true)
     }
     
-    @objc func saveChanges() {
-        // network call to save changes
-        NetworkManager.shared.postUserAvatar(token: userID!.user.id, image: image!)
+    func createDismissKeyboardTapGesture() {
+        let tap = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing))
+        view.addGestureRecognizer(tap)
     }
     
-    @objc fileprivate func handleSelectPhoto() {
-        let imagePickerController = UIImagePickerController()
-        imagePickerController.delegate = self
-        present(imagePickerController, animated: true)
+    @objc func saveChanges() {
+        if !(usernameTextView.text!.isEmpty) {
+            NetworkManager.shared.editName(user: userID!.user.id, name: usernameTextView.text!, token: userID!.token) { [weak self] result in
+                guard let self = self else { return }
+                switch result {
+                case .success(let resp):
+                    self.presentClassiAlertOnMainThread(title: "Success", message: "You have successfully changed your name to \(self.usernameTextView.text!).", buttonTitle: "Ok")
+                case .failure(let err):
+                    self.presentClassiAlertOnMainThread(title: "Error", message: "Your request could not be fulfilled, please try again.", buttonTitle: "Ok")
+                }
+            }
+        }
+    }
+    
+    @objc func showSite() {
+        if let url = URL(string: "https://classi-client.herokuapp.com") {
+            let config = SFSafariViewController.Configuration()
+            config.entersReaderIfAvailable = true
+            let vc = SFSafariViewController(url: url, configuration: config)
+            present(vc, animated: true)
+        }
     }
     
     func configure() {
@@ -89,61 +104,31 @@ class EditProfileVC: UIViewController {
         imageInfoLabel.translatesAutoresizingMaskIntoConstraints = false
         imageInfoLabel.font = UIFont(name: "HelveticaNeue", size: 17)
         imageInfoLabel.textColor = .systemGray2
-        
-        emailInfoLabel.text = "Your email will not be displayed on your profile, it will only be used when a user wants to make a bid"
-        emailInfoLabel.numberOfLines = 0
-        emailInfoLabel.textAlignment = .center
-        emailInfoLabel.translatesAutoresizingMaskIntoConstraints = false
-        emailInfoLabel.font = UIFont(name: "HelveticaNeue", size: 17)
-        emailInfoLabel.textColor = .systemGray2
-        
+    
         usernameTextView.translatesAutoresizingMaskIntoConstraints = false
         usernameTextView.layer.cornerRadius = 16
         usernameTextView.layer.borderColor = UIColor.classiBlue.cgColor
         usernameTextView.layer.borderWidth = 5
-        usernameTextView.placeholder = "Add a name"
+        usernameTextView.placeholder = user?.name
         usernameTextView.textAlignment = .center
-        
-        emailTextView.translatesAutoresizingMaskIntoConstraints = false
-        emailTextView.layer.cornerRadius = 16
-        emailTextView.layer.borderColor = UIColor.classiBlue.cgColor
-        emailTextView.layer.borderWidth = 5
-        emailTextView.placeholder = "Add an Email"
-        emailTextView.textAlignment = .center
-        
-        bioTextView.translatesAutoresizingMaskIntoConstraints = false
-        bioTextView.layer.cornerRadius = 30
-        bioTextView.layer.borderColor = UIColor.classiBlue.cgColor
-        bioTextView.layer.borderWidth = 5
-        bioTextView.placeholder = "Add a Bio, max 50 characters!"
-        bioTextView.textAlignment = .center
         
         usernameLabel.textAlignment = .left
         usernameLabel.textColor = .classiBlue
-        bioLabel.textAlignment = .left
-        bioLabel.textColor = .classiBlue
-        emailLabel.textAlignment = .left
-        emailLabel.textColor = .classiBlue
         
         saveButton.addTarget(self, action: #selector(saveChanges), for: .touchUpInside)
         
-        imageUploadButton.addTarget(self, action: #selector(handleSelectPhoto), for: .touchUpInside)
+        imageUploadButton.addTarget(self, action: #selector(showSite), for: .touchUpInside)
         
         view.addSubview(scrollView)
         
         scrollView.addSubview(containerView)
         
         containerView.addSubview(usernameTextView)
-        containerView.addSubview(bioTextView)
         containerView.addSubview(infoLabel)
         containerView.addSubview(usernameLabel)
-        containerView.addSubview(bioLabel)
         containerView.addSubview(imageUploadButton)
         containerView.addSubview(saveButton)
         containerView.addSubview(imageInfoLabel)
-        containerView.addSubview(emailLabel)
-        containerView.addSubview(emailTextView)
-        containerView.addSubview(emailInfoLabel)
         
         let padding: CGFloat = 20
         
@@ -180,32 +165,7 @@ class EditProfileVC: UIViewController {
             usernameTextView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -padding),
             usernameTextView.heightAnchor.constraint(equalToConstant: 50),
             
-            emailLabel.topAnchor.constraint(equalTo: usernameTextView.bottomAnchor, constant: padding),
-            emailLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: padding),
-            emailLabel.heightAnchor.constraint(equalToConstant: 40),
-            emailLabel.widthAnchor.constraint(equalToConstant: 300),
-            
-            emailInfoLabel.topAnchor.constraint(equalTo: emailLabel.bottomAnchor, constant: padding),
-            emailInfoLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: padding),
-            emailInfoLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -padding),
-            emailInfoLabel.heightAnchor.constraint(equalToConstant: 60),
-            
-            emailTextView.topAnchor.constraint(equalTo: emailInfoLabel.bottomAnchor, constant: padding),
-            emailTextView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: padding),
-            emailTextView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -padding),
-            emailTextView.heightAnchor.constraint(equalToConstant: 50),
-            
-            bioLabel.topAnchor.constraint(equalTo: emailTextView.bottomAnchor, constant: padding),
-            bioLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: padding),
-            bioLabel.heightAnchor.constraint(equalToConstant: 40),
-            bioLabel.widthAnchor.constraint(equalToConstant: 70),
-            
-            bioTextView.topAnchor.constraint(equalTo: bioLabel.bottomAnchor, constant: padding),
-            bioTextView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: padding),
-            bioTextView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -padding),
-            bioTextView.heightAnchor.constraint(equalToConstant: 150),
-            
-            imageInfoLabel.topAnchor.constraint(equalTo: bioTextView.bottomAnchor, constant: padding),
+            imageInfoLabel.topAnchor.constraint(equalTo: usernameTextView.bottomAnchor, constant: padding),
             imageInfoLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: padding),
             imageInfoLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -padding),
             imageInfoLabel.heightAnchor.constraint(equalToConstant: 60),
@@ -213,7 +173,7 @@ class EditProfileVC: UIViewController {
             imageUploadButton.topAnchor.constraint(equalTo: imageInfoLabel.bottomAnchor, constant: padding),
             imageUploadButton.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
             imageUploadButton.heightAnchor.constraint(equalToConstant: 60),
-            imageUploadButton.widthAnchor.constraint(equalToConstant: 180),
+            imageUploadButton.widthAnchor.constraint(equalToConstant: 250),
             
             saveButton.topAnchor.constraint(equalTo: imageUploadButton.bottomAnchor, constant: padding*2),
             saveButton.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
@@ -224,71 +184,7 @@ class EditProfileVC: UIViewController {
         ])
             
     }
-    
-    func postImage(image: UIImage) {
 
-        let filename = "avatar.png"
-
-        // generate boundary string using a unique per-app string
-        let boundary = UUID().uuidString
-
-        let fieldName = "avatar"
-        let fieldValue = "fileupload"
-
-        let config = URLSessionConfiguration.default
-        let session = URLSession(configuration: config)
-
-        var urlRequest = URLRequest(url: URL(string: "https://classi-server.herokuapp.com/api/images/avatars")!)
-        urlRequest.httpMethod = "POST"
-
-        urlRequest.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        urlRequest.setValue(userID!.user.id, forHTTPHeaderField: "X-Auth-Token")
-
-        var data = Data()
-        
-        // Add the image data to the raw http request data
-        data.append("\r\n--\(boundary)\r\n".data(using: .utf8)!)
-        data.append("Content-Disposition: form-data; name=\"fileToUpload\"; filename=\"avi.png\"\r\n".data(using: .utf8)!)
-        data.append("Content-Type: image/png\r\n\r\n".data(using: .utf8)!)
-        data.append(image.pngData()!)
-
-        // End the raw http request data, note that there is 2 extra dash ("-") at the end, this is to indicate the end of the data
-        // According to the HTTP 1.1 specification https://tools.ietf.org/html/rfc7230
-        data.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
-
-        // Send a POST request to the URL, with the data we created earlier
-        session.uploadTask(with: urlRequest, from: data, completionHandler: { responseData, response, error in
-            
-            if(error != nil){
-                print("\(error!.localizedDescription)")
-            }
-            
-            guard let responseData = responseData else {
-                print("no response data")
-                return
-            }
-            
-            if let responseString = String(data: responseData, encoding: .utf8) {
-                print("uploaded to: \(responseString)")
-            }
-        }).resume()
-
-    }
-
-    
-}
-
-extension EditProfileVC: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        image = info[.originalImage] as? UIImage
-        postImage(image: image!)
-        dismiss(animated: true)
-    }
-    
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        dismiss(animated: true)
-    }
     
 }
 
